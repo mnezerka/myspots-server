@@ -45,12 +45,12 @@
     <script src="https://api.mapy.cz/loader.js" on:load={loadedMapyCz}></script>
 </svelte:head>
 
-<main>
+<div bind:this={elMap} id="map"/>
 
-    <h1>MySpots</h1>
-
-    <p>a place for map is here</p>
-
-    <div bind:this={elMap} id="map" style="height: 500px; width: 500px" />
-
-</main>
+<style>
+	:global(html, body, #app, #map) {
+		width: 100%;
+        height: 100%;
+        margin: 0;
+	}
+</style>
