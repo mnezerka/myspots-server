@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>MySpots</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+    <script src="spots.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginForm" style="display: none">
+        <h2 class="text-center">Login</h2>
+        <form>
+            <div class="input-group">
+                <label for="email" class="label">Email</label>
+                <input type="text" id="email" class="input" value="mn@example.com">
+            </div>
+            <br>
+            <div class="input-group">
+                <label for="password" class="label">Password</label>
+                <input type="password" id="password" class="input" value="mn">
+            </div>
+            <br>
+            <button class="button" type="submit">Login</button>
+        </form>
+    </div>
+
+    <div id="map" style="width: 100%; height: 100%;; display: none"></div>
+
+<script>
+    var elLoginForm = document.getElementById("loginForm")
+    var elEmail = document.getElementById("email")
+    var elPassword = document.getElementById("password")
+    var elMap =  document.getElementById("map")
+
+
+    function updateUI() {
+        console.log("token", localStorage.getItem('token'));
+
+        if(localStorage.getItem('token') == null) {
+            elLoginForm.style.display = "block"
+            elMap.style.display = "none"
+        } else {
+            elLoginForm.style.display = "none"
+            elMap.style.display = "block"
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(onPosition);
+            } else { 
+                console.warn("Geolocation is not supported by this browser.");
+            }
+        }
+    }
+    
+    updateUI();
+    
+    function onPosition(position) {
+        console.log("onPosition", position)
+        
+        map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude)); 
+    }
+
+    elLoginForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        let email = elEmail.value.trim();
+        let password = elPassword.value.trim();
+
+        if (email != "" && password != "") {
+            
+            fetch("/login", {
+                method: 'POST',
+                body: '{"email": "' + email + '", "password": "' + password + '"}',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                referrer: 'no-referrer'
+            }).then(function(response) {
+                // The API call was successful!
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return Promise.reject(response);
+                }
+            }).then(function (data) {
+                // This is the JSON from our response
+                console.log(data);
+                localStorage.setItem('token', data.accessToken)
+                updateUI();
+            }).catch(function(err) {
+                console.warn('Something went wrong.', err); 
+            });
+        }
+    })
+
+    const map = L.map('map').setView([51.505, -0.09], 13);
+
+    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    /*
+    function onMapClick(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent(`You clicked the map at ${e.latlng.toString()}`)
+            .openOn(map);
+    }
+
+    map.on('click', onMapClick);
+    */
+</script>
+
+</body>
+</html>
+
