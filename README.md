@@ -27,3 +27,22 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+
+## Deployment
+
+Enter certbot container:
+```bash
+docker-compose exec certbot sh
+```
+
+Create certificates:
+```bash
+certbot certonly -d yonderland.org,myspots.yonderland.org
+# webroot dir is /var/www/certbot 
+```
+
+Generate Diffie-Hellman group to be refered from nginx conf:
+```bash
+ openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+ ```
