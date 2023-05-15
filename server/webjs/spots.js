@@ -31,7 +31,7 @@ function onLoaded() {
 function centerMap() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(onCenterMap);
-    } else { 
+    } else {
         console.warn("Geolocation is not supported by this browser.");
     }
 }
@@ -39,7 +39,7 @@ function centerMap() {
 function onCenterMap(position) {
     console.log("onCenterMap", position)
     if (map) {
-        map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude)); 
+        map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
     }
 }
 
@@ -52,8 +52,9 @@ function updateUI() {
     } else {
         elLoginForm.style.display = "none"
         elMap.style.display = "block"
-        
-        centerMap()
+
+        //centerMap()
+        map.invalidateSize();
     }
 }
 
@@ -63,7 +64,7 @@ function onLoginSubmit(e) {
     let password = elPassword.value.trim();
 
     if (email != "" && password != "") {
-        
+
         fetch("/login", {
             method: 'POST',
             body: '{"email": "' + email + '", "password": "' + password + '"}',
@@ -84,7 +85,7 @@ function onLoginSubmit(e) {
             localStorage.setItem('token', data.accessToken)
             updateUI();
         }).catch(function(err) {
-            console.warn('Something went wrong.', err); 
+            console.warn('Something went wrong.', err);
         });
     }
 }
