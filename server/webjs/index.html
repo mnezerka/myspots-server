@@ -1,8 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <base target="_top">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -11,76 +9,17 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 
+    <link rel="stylesheet" href="spots.css"/>
     <script src="spots.js"></script>
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: arial;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h2 {
-            font-size: 16pt;
-        }
-
-        #map {
-            width: 100%;
-            flex-grow: 2;
-            /*height: 100%;
-            max-width: 100%;
-            max-height: 100%;*/
-        }
-        #toolbar {
-            height: 26px;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        #toolbar .button {
-            height: 24px;
-            border: 1px solid gray;
-        }
-
-        #toolbar .title {
-            flex-grow: 1;
-            font-size: 18pt;
-            font-weight: bold;
-
-            color: #666;
-        }
-
-        #toolbar .button {
-            height: 24px;
-            line-height: 24px;
-            padding-left: 5px;
-            padding-right: 5px;
-            border: 1px solid #ccc;
-            background-color: #eee;
-        }
-
-
-        #loginForm {
-            width: 400px;
-        }
-
-
-
-    </style>
 </head>
+
 <body>
     <div id="toolbar">
         <span class="title">MySpots</span>
         <span id="button-center" class="button">Center</span>
-        <span class="button">Login</span>
-        <span class="button">Logout</span>
+        <span id="button-login" class="button">Login</span>
+        <span id="button-logout" class="button">Logout</span>
+        <span id="user-info" style="display: none"></span>
     </div>
 
     <div id="loginForm" style="display: none">
@@ -102,30 +41,9 @@
 
     <div id="map" style="display: none"></div>
 
-<script>
-
-    window.addEventListener('load', function () {
-        onLoaded();
-    })
-
-    const map = L.map('map').setView([51.505, -0.09], 13);
-
-    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-
-    /*
-    function onMapClick(e) {
-        popup
-            .setLatLng(e.latlng)
-            .setContent(`You clicked the map at ${e.latlng.toString()}`)
-            .openOn(map);
-    }
-
-    map.on('click', onMapClick);
-    */
-</script>
+    <script>
+        window.addEventListener('load', onLoaded)
+    </script>
 
 </body>
 </html>

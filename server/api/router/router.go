@@ -22,9 +22,11 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gi
 	// Middleware to verify AccessToken
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 	// All Private APIs
-	//	NewProfileRouter(env, timeout, db, protectedRouter)
+	NewProfileRouter(env, timeout, db, protectedRouter)
 	NewSpotsRouter(env, timeout, db, protectedRouter)
 
 	gin.StaticFile("/", "./webjs/index.html")
 	gin.StaticFile("/spots.js", "./webjs/spots.js")
+	gin.StaticFile("/spots.css", "./webjs/spots.css")
+	gin.StaticFile("/favicon.ico", "./webjs/favicon.ico")
 }
