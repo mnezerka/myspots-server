@@ -6,6 +6,7 @@
 
     <title>MySpots</title>
 
+     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 
@@ -19,27 +20,30 @@
         <span id="button-center" class="button">Center</span>
         <span id="button-login" class="button">Login</span>
         <span id="button-logout" class="button">Logout</span>
-        <span id="user-info" style="display: none"></span>
+        <span id="user-info"></span>
     </div>
 
-    <div id="loginForm" style="display: none">
-        <h2 class="text-center">Login</h2>
-        <form>
-            <div class="input-group">
-                <label for="email" class="label">Email</label>
-                <input type="text" id="email" class="input" value="mn@example.com">
-            </div>
-            <br>
-            <div class="input-group">
-                <label for="password" class="label">Password</label>
-                <input type="password" id="password" class="input" value="mn">
-            </div>
-            <br>
-            <button class="button" type="submit">Login</button>
-        </form>
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-center">Login</h2>
+            <form>
+                <div class="input-group">
+                    <label for="email" class="label">Email</label>
+                    <input type="text" id="email" class="input email" value="mn@example.com">
+                </div>
+                <br>
+                <div class="input-group">
+                    <label for="password" class="label">Password</label>
+                    <input type="password" id="password" class="input password" value="mn">
+                </div>
+                <br>
+                <button class="button submit" type="submit">Login</button>
+            </form>
+        </div>
     </div>
 
-    <div id="map" style="display: none"></div>
+    <div id="map"></div>
 
     <script>
         window.addEventListener('load', onLoaded)
