@@ -97,22 +97,26 @@ Identity.prototype.login = async function(email, password) {
 
 //////////////////////////////////////////////// Toolbar
 
-function Toolbar(identity, onLogin, onLogout, onCenter) {
+function Toolbar(identity, onLogin, onLogout, onCenter, onAdd) {
+
     this.identity = identity;
     this.onLogin = onLogin;
     this.onLogout = onLogout;
     this.onCenter = onCenter;
+    this.onAdd = onAdd;
 
     this.identity.registerObserver(this); 
 
     this.elBtnLogin = document.getElementById("button-login");
     this.elBtnLogout = document.getElementById("button-logout");
     this.elBtnCenter = document.getElementById("button-center");
+    this.elBtnAdd = document.getElementById("button-add");
     this.elUserInfo = document.getElementById("user-info");
 
     this.elBtnLogin.addEventListener("click", this.onLogin);
     this.elBtnLogout.addEventListener("click", this.onLogout);
     this.elBtnCenter.addEventListener("click", this.onCenter);
+    this.elBtnAdd.addEventListener("click", this.onAdd);
 }
 
 Toolbar.prototype.update = function() {
@@ -147,8 +151,6 @@ function LoginModal(onClose, onSubmit) {
 
     this.elEmail = this.el.getElementsByClassName("input email")[0];
     this.elPassword = this.el.getElementsByClassName("input password")[0];
-
-    console.log(this.elEmail, this.elPassword);
 
     this.elSubmit.addEventListener("click", this.onClickSubmit.bind(this));
     this.elClose.addEventListener("click", this.onClose);
@@ -186,24 +188,23 @@ function Map() {
     console.log("Map:constructor:enter")
 
     this.map = L.map('map').setView([51.505, -0.09], 13);
+    
+    // active position on map
+    this.pos = null;
+    this.posMarker = null;
 
-    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    this.tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map);
 
-    /*
-    function onMapClick(e) {
-        popup
-            .setLatLng(e.latlng)
-            .setContent(`You clicked the map at ${e.latlng.toString()}`)
-            .openOn(map);
-    }
-
-    map.on('click', onMapClick);
-    */
+    this.map.on('click', this.onMapClick.bind(this));
 
     console.log("Map:constructor:leave")
+}
+
+Map.prototype.onMapClick = function(e) {
+    this.setPos(e.latlng);
 }
 
 Map.prototype.centerMap = function() {
@@ -221,9 +222,21 @@ Map.prototype.centerMap = function() {
 Map.prototype.onCenterMap = function(position) {
     console.log("Map:onCenterMap:enter", position)
 
-    this.map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
+    const p = new L.LatLng(position.coords.latitude, position.coords.longitude);
+
+    this.setPos(p);
+    this.map.panTo(p);
 
     console.log("Map:onCenterMap:leave")
+}
+
+Map.prototype.setPos = function(pos) {
+    this.pos = pos;
+    if (this.posMarker) {
+        this.posMarker.setLatLng(this.pos)
+    } else {
+        this.posMarker = L.marker(this.pos).addTo(this.map) 
+    }
 }
 
 //////////////////////////////////////////////// Application
@@ -233,7 +246,7 @@ function App() {
 
     this.identity = new Identity();
 
-    this.toolbar = new Toolbar(this.identity, this.onLogin.bind(this), this.onLogout.bind(this), this.onCenter.bind(this));
+    this.toolbar = new Toolbar(this.identity, this.onLogin.bind(this), this.onLogout.bind(this), this.onCenter.bind(this), this.onAdd.bind(this));
     this.toolbar.update();
 
     this.loginModal = new LoginModal(this.onLoginModalClose.bind(this), this.onLoginModalSubmit.bind(this), );
@@ -280,6 +293,12 @@ App.prototype.onCenter = function(e) {
     console.log("App:onCenter:enter", this);
     this.map.centerMap();
     console.log("App:onCenter:leave");
+}
+
+App.prototype.onAdd = function(e) {
+    console.log("App:onAdd:enter");
+    //this.loginModal.show();
+    console.log("App:onAdd:leave");
 }
 
 //////////////////////////////////////////////// main

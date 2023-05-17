@@ -92,3 +92,8 @@ h2 {
   text-decoration: none;
   cursor: pointer;
 }
+
+/****************************************** leaflet custom stuff */
+.leaflet-container {
+    cursor:crosshair;
+}
