@@ -1,33 +1,31 @@
-# STEP 1 build executable binary
 
 FROM golang:1.19-alpine AS builder
 
 # install git (required for fetching the dependencies)
 RUN apk update && apk add --no-cache git
-WORKDIR $GOPATH/src/mypackage/myapp/
-COPY . .
 
-RUN mkdir app
+WORKDIR $GOPATH/src/mypackage/myapp/
+
+COPY . .
 
 # fetch dependencies
 RUN go get -d -v
 
 # build the binary.
-RUN go build -o /app/server
+RUN  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /app/server
 
 # copy static content
-RUN cp -r webjs /app/
-#ENTRYPOINT ["/bin/sh"]
+RUN cp -r webjs /app
+RUN cp .env /app
+
+RUN ls -l /app
 
 # STEP 2 build a small image
 
 FROM scratch
 
-# copy our static executable.
-COPY --from=builder /app/server /app/server
+COPY --from=builder /app /app
 
-#COPY --from=builder /app/webjs /app/
-
-#WORKDIR /app
+WORKDIR /app
 
 ENTRYPOINT ["/app/server"]

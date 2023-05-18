@@ -23,10 +23,17 @@ type Env struct {
 
 func NewEnv() *Env {
 
+	// LoadConfig reads configuration from file or environment variables.
+
 	log.Print("Reading configuration form environment")
 
 	env := Env{}
 	viper.SetConfigFile(".env")
+
+	// call viper.AutomaticEnv() to tell viper to automatically override values
+	// that it has read from config file with the values of the corresponding
+	//  environment variables if they exist.
+	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
 	if err != nil {
