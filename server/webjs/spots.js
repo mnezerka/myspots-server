@@ -1,6 +1,8 @@
 
 var app;
 
+let empty_function = function() {}
+
 //////////////////////////////////////////////// UserProfile 
 
 function Identity() {
@@ -8,7 +10,7 @@ function Identity() {
     this.name = '';
     this.email = ''; 
     this.token = localStorage.getItem('token');
-    this.loggedIn = false;
+    this.isLogged = false;
 
     this.observers = []; 
 }
@@ -18,10 +20,7 @@ Identity.prototype.registerObserver = function(observer) {
 }
 
 Identity.prototype.notifyAll = function() {
-    this.observers.forEach(function(observer) {
-        console.log(observer);
-        observer.update();
-    })
+    this.observers.forEach(function(observer) { observer(this)}.bind(this))
 }
 
 Identity.prototype.logout = function() {
@@ -86,6 +85,8 @@ Identity.prototype.login = async function(email, password) {
             this.token= data.accessToken;
             this.isLogged = true;
             this.notifyAll();
+
+            this.fetchProfile();
         } else {
             console.warn('Unexpected response code: ', response.status);
         }
@@ -97,30 +98,114 @@ Identity.prototype.login = async function(email, password) {
 
 //////////////////////////////////////////////// Toolbar
 
-function Toolbar(identity, onLogin, onLogout, onCenter, onAdd) {
+function Spots(args) {
+    this.identity = args.identity || null;
+    this.spots = [];
 
-    this.identity = identity;
-    this.onLogin = onLogin;
-    this.onLogout = onLogout;
-    this.onCenter = onCenter;
-    this.onAdd = onAdd;
+    this.observers = []; 
+}
 
-    this.identity.registerObserver(this); 
+Spots.prototype.registerObserver = function(observer) {
+    this.observers.push(observer);
+}
+
+Spots.prototype.notifyAll = function() {
+    this.observers.forEach(function(observer) { observer(this)}.bind(this))
+}
+
+Spots.prototype.fetch = async function() {
+
+    console.log("Spots:fetch:enter");
+
+    if (!this.identity || !this.identity.isLogged) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/spots", {
+            method: 'GET',
+            headers: {
+                'Authorization': `JWT ${this.identity.token}`
+            },
+            referrer: 'no-referrer'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            console.log("Spots:fetch:data", data);
+            this.spots = data;
+            this.notifyAll();
+        } else {
+            console.warn('Unexpected response code: ', response.status);
+        }
+    } catch (err) {
+        console.warn('Something went wrong.', err);
+    }
+}
+
+Spots.prototype.create = async function(spot) {
+
+    console.log("Spots:create:enter", spot);
+
+    if (!this.identity || !this.identity.isLogged) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/spots", {
+            method: 'POST',
+            body: `{"name": "${spot.name}", "coordinates": [${spot.position.lat}, ${spot.position.lng}]}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `JWT ${this.identity.token}`
+            },
+            referrer: 'no-referrer'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Spots:create:data", data);
+            this.notifyAll();
+
+        } else {
+            console.warn('Unexpected response code: ', response.status);
+        }
+    } catch (err) {
+        console.warn('Something went wrong.', err);
+    }
+}
+
+
+//////////////////////////////////////////////// Toolbar
+
+function Toolbar(args) {
+
+    this.identity = args.identity;
+    this.onLogin = args.onLogin || empty_function;
+    this.onLogout = args.onLogout || empty_function;
+    this.onLocalize = args.onLocalize || empty_function;
+    this.onCenter = args.onCenter || empty_function;
+    this.onAdd = args.onAdd || empty_function;
+
+    this.identity.registerObserver(this.update.bind(this)); 
 
     this.elBtnLogin = document.getElementById("button-login");
     this.elBtnLogout = document.getElementById("button-logout");
+    this.elBtnLocalize = document.getElementById("button-localize");
     this.elBtnCenter = document.getElementById("button-center");
     this.elBtnAdd = document.getElementById("button-add");
     this.elUserInfo = document.getElementById("user-info");
 
     this.elBtnLogin.addEventListener("click", this.onLogin);
     this.elBtnLogout.addEventListener("click", this.onLogout);
+    this.elBtnLocalize.addEventListener("click", this.onLocalize);
     this.elBtnCenter.addEventListener("click", this.onCenter);
     this.elBtnAdd.addEventListener("click", this.onAdd);
 }
 
-Toolbar.prototype.update = function() {
-    console.log("Toolbar:update:enter");
+Toolbar.prototype.update = function(publisher) {
+    console.log("Toolbar:update:enter", publisher);
 
     if (this.identity.isLogged) {
         this.elUserInfo.textContent = `${this.identity.name} <${this.identity.email}>`;
@@ -137,11 +222,11 @@ Toolbar.prototype.update = function() {
 //////////////////////////////////////////////// LoginModal
 // https://www.w3schools.com/howto/howto_css_modals.asp 
 
-function LoginModal(onClose, onSubmit) {
+function LoginModal(args) {
     console.log("LoginModal:constructor:enter")
 
-    this.onClose = onClose;
-    this.onSubmit = onSubmit;
+    this.onClose = args.onClose || empty_function;
+    this.onSubmit = args.onSubmit || empty_function;
 
     this.el = document.getElementById("login-modal");
     this.el.style.display = "none";
@@ -182,6 +267,51 @@ LoginModal.prototype.hide = function() {
     this.el.style.display = "none";
 }
 
+//////////////////////////////////////////////// AddSpotModal
+
+function AddSpotModal(args) {
+    console.log("AddSpotModal:constructor:enter")
+
+    this.onClose = args.onClose || empty_function;
+    this.onSubmit = args.onSubmit || empty_function;
+
+    this.el = document.getElementById("add-spot-modal");
+    this.el.style.display = "none";
+
+    this.elClose = this.el.getElementsByClassName("close")[0];
+    this.elSubmit = this.el.getElementsByClassName("submit")[0];
+
+    this.elName = this.el.getElementsByClassName("input name")[0];
+
+    this.elSubmit.addEventListener("click", this.onClickSubmit.bind(this));
+    this.elClose.addEventListener("click", this.onClose);
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == this.ell) {
+            this.onClose();
+        }
+    }
+
+    console.log("AddSpotModal:constructor:leave")
+}
+
+AddSpotModal.prototype.onClickSubmit = function(e) {
+    e.preventDefault();
+
+    let name = this.elName.value;
+
+    this.onSubmit(name);
+}
+
+AddSpotModal.prototype.show = function() {
+    this.el.style.display = "block";
+}
+
+AddSpotModal.prototype.hide = function() {
+    this.el.style.display = "none";
+}
+
 //////////////////////////////////////////////// Map
 
 function Map() {
@@ -192,6 +322,8 @@ function Map() {
     // active position on map
     this.pos = null;
     this.posMarker = null;
+
+    this.markers = {};
 
     this.tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -207,28 +339,39 @@ Map.prototype.onMapClick = function(e) {
     this.setPos(e.latlng);
 }
 
-Map.prototype.centerMap = function() {
-    console.log("Map:centerMap:enter");
+Map.prototype.localize = function() {
+    console.log("Map:localize:enter");
 
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(this.onCenterMap.bind(this));
+        navigator.geolocation.getCurrentPosition(this.onLocalized.bind(this));
     } else {
         console.warn("Geolocation is not supported by this browser.");
     }
 
-    console.log("Map:centerMap:leave");
+    console.log("Map:localize:leave");
 }
 
-Map.prototype.onCenterMap = function(position) {
-    console.log("Map:onCenterMap:enter", position)
+Map.prototype.onLocalized = function(position) {
+    console.log("Map:onLocalized:enter", position)
 
     const p = new L.LatLng(position.coords.latitude, position.coords.longitude);
 
     this.setPos(p);
     this.map.panTo(p);
 
-    console.log("Map:onCenterMap:leave")
+    console.log("Map:onLocalized:leave")
 }
+
+Map.prototype.center = function() {
+    console.log("Map:center:enter");
+
+    if (this.pos) {
+        this.map.panTo(this.pos);
+    }
+
+    console.log("Map:center:leave");
+}
+
 
 Map.prototype.setPos = function(pos) {
     this.pos = pos;
@@ -239,23 +382,82 @@ Map.prototype.setPos = function(pos) {
     }
 }
 
+Map.prototype.getPos = function() {
+    return this.pos;
+}
+
+Map.prototype.updateSpots = function(spots) {
+
+    for (let i = 0; i < spots.spots.length; i++) {
+        const s = spots.spots[i];
+        if (s.id in this.markers) {
+            continue;
+        }
+
+        const p = new L.LatLng(s.coordinates[0], s.coordinates[1]);
+        this.markers[s.id] = L.marker(p);
+        this.markers[s.id].addTo(this.map);
+        this.markers[s.id].bindPopup(s.name);
+    }
+}
+
+
 //////////////////////////////////////////////// Application
 
 function App() {
     console.log("App:constructor:enter")
 
     this.identity = new Identity();
+    this.identity.registerObserver(this.onUpdateIdentity.bind(this));
 
-    this.toolbar = new Toolbar(this.identity, this.onLogin.bind(this), this.onLogout.bind(this), this.onCenter.bind(this), this.onAdd.bind(this));
+    this.toolbar = new Toolbar({
+        identity: this.identity,
+        onLogin: this.onLogin.bind(this),
+        onLogout: this.onLogout.bind(this),
+        onLocalize: this.onLocalize.bind(this),
+        onCenter: this.onCenter.bind(this),
+        onAdd: this.onAdd.bind(this)
+    });
     this.toolbar.update();
 
-    this.loginModal = new LoginModal(this.onLoginModalClose.bind(this), this.onLoginModalSubmit.bind(this), );
+    this.loginModal = new LoginModal({
+        onClose: this.onLoginModalClose.bind(this),
+        onSubmit: this.onLoginModalSubmit.bind(this)
+    });
+ 
+    this.addSpotModal = new AddSpotModal({
+        onClose: this.onAddSpotModalClose.bind(this),
+        onSubmit: this.onAddSpotModalSubmit.bind(this)
+    });
+
+    this.spots = new Spots({
+        identity: this.identity
+    });
+    this.spots.registerObserver(this.onUpdateSpots.bind(this));
 
     this.map = new Map();
 
     this.identity.fetchProfile();
 
     console.log("App:constructor:leave")
+}
+
+App.prototype.onUpdateIdentity = function() {
+    console.log("App:onUpdateIdentity:enter");
+
+    if (this.identity.isLogged && this.spots.spots.length == 0) {
+        this.spots.fetch();
+    }
+
+    console.log("App:onUpdateIdentity:leave")
+}
+
+App.prototype.onUpdateSpots = function() {
+    console.log("App:onUpdateSlots:enter");
+
+    this.map.updateSpots(this.spots);
+
+    console.log("App:onUpdateSlots:leave")
 }
 
 App.prototype.onLogin = function(e) {
@@ -289,16 +491,59 @@ App.prototype.onLogout = function(e) {
     console.log("App:onLogout:leave");
 }
 
+App.prototype.onLocalize = function(e) {
+    console.log("App:onLocalize:enter", this);
+    this.map.localize();
+    console.log("App:onLocalize:leave");
+}
+
 App.prototype.onCenter = function(e) {
-    console.log("App:onCenter:enter", this);
-    this.map.centerMap();
+    console.log("App:onCenter:enter");
+    this.map.center();
     console.log("App:onCenter:leave");
 }
 
 App.prototype.onAdd = function(e) {
     console.log("App:onAdd:enter");
     //this.loginModal.show();
+
+    let pos = this.map.getPos();
+    console.log(pos);
+    if (pos) {
+        this.addSpotModal.show();
+    }
+
     console.log("App:onAdd:leave");
+}
+
+App.prototype.onAddSpotModalClose = function(e) {
+    console.log("App:onAddSpotModalClose:enter");
+    this.addSpotModal.hide();
+    console.log("App:onAddSpotModalClose:leave");
+}
+
+App.prototype.onAddSpotModalSubmit = async function(name) {
+
+    console.log("App:onAddSpotModalSubmit:enter", name);
+
+    pos = this.map.getPos();
+
+    if (name == "") {
+        // do nothing, keep form open
+        return;
+    }
+
+    if (pos) {
+        console.log(pos);
+        this.spots.create({
+            "name": name,
+            "position": pos
+        })
+    }
+
+    this.addSpotModal.hide();
+
+    console.log("App:onAddSpotModalSubmit:leave");
 }
 
 //////////////////////////////////////////////// main
@@ -308,6 +553,7 @@ function onLoaded() {
 
     // initialize application when the page is completely loaded
     app = new App();
+
 
     console.log("onLoaded:leave");
 }

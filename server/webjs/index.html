@@ -18,7 +18,8 @@
     <div id="toolbar">
         <span class="title">MySpots</span>
         <span id="button-add" class="button">Add</span>
-        <span id="button-center" class="button">Center</span>
+        <span id="button-localize" class="button">Loc</span>
+        <span id="button-center" class="button">Ctr</span>
         <span id="button-login" class="button">Login</span>
         <span id="button-logout" class="button">Logout</span>
         <span id="user-info"></span>
@@ -40,6 +41,20 @@
                 </div>
                 <br>
                 <button class="button submit" type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="add-spot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-center">New Spot</h2>
+            <form>
+                <div class="input-group">
+                    <label for="name" class="label">Spot Name</label>
+                    <input type="text" id="name" class="input name" value="">
+                </div>
+                <button class="button submit" type="submit">Save</button>
             </form>
         </div>
     </div>
