@@ -12,7 +12,7 @@ const (
 
 type Spot struct {
 	ID          primitive.ObjectID `bson:"_id" json:"id"`
-	Title       string             `bson:"title" form:"title" binding:"required" json:"title"`
+	Name        string             `bson:"name" form:"name" binding:"required" json:"name"`
 	UserID      primitive.ObjectID `bson:"userID" json:"-"`
 	Type        string             `bson:"type" json:"-"`
 	Coordinates Coordinates        `bson:"coordinates" form:"coordinates" binding:"required" json:"coordinates"`
