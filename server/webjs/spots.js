@@ -1,6 +1,8 @@
 
 var app;
 
+var host = ""
+
 let empty_function = function() {}
 
 //////////////////////////////////////////////// UserProfile 
@@ -40,7 +42,7 @@ Identity.prototype.fetchProfile = async function() {
     }
 
     try {
-        const response = await fetch("/profile", {
+        const response = await fetch(host + "/profile", {
             method: 'GET',
             headers: {
                 'Authorization': `JWT ${this.token}`
@@ -69,7 +71,7 @@ Identity.prototype.login = async function(email, password) {
     console.log("UserProfile:login:enter", email, password);
 
     try {
-        const response = await fetch("/login", {
+        const response = await fetch(host + "/login", {
             method: 'POST',
             body: '{"email": "' + email + '", "password": "' + password + '"}',
             headers: {
@@ -122,7 +124,7 @@ Spots.prototype.fetch = async function() {
     }
 
     try {
-        const response = await fetch("/spots", {
+        const response = await fetch(host + "/spots", {
             method: 'GET',
             headers: {
                 'Authorization': `JWT ${this.identity.token}`
@@ -153,7 +155,7 @@ Spots.prototype.create = async function(spot) {
     }
 
     try {
-        const response = await fetch("/spots", {
+        const response = await fetch(host + "/spots", {
             method: 'POST',
             body: `{"name": "${spot.name}", "coordinates": [${spot.position.lat}, ${spot.position.lng}]}`,
             headers: {
