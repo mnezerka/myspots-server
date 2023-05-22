@@ -98,9 +98,11 @@ func NewClient(connection string) (Client, error) {
 
 	time.Local = time.UTC
 	c, err := mongo.NewClient(options.Client().ApplyURI(connection))
+	if err != nil {
+		return nil, err
+	}
 
-	return &mongoClient{cl: c}, err
-
+	return &mongoClient{cl: c}, nil
 }
 
 func (mc *mongoClient) Ping(ctx context.Context) error {
@@ -118,7 +120,10 @@ func (mc *mongoClient) UseSession(ctx context.Context, fn func(mongo.SessionCont
 
 func (mc *mongoClient) StartSession() (mongo.Session, error) {
 	session, err := mc.cl.StartSession()
-	return &mongoSession{session}, err
+	if err != nil {
+		return nil, err
+	}
+	return &mongoSession{session}, nil
 }
 
 func (mc *mongoClient) Connect(ctx context.Context) error {
@@ -150,27 +155,43 @@ func (mc *mongoCollection) UpdateOne(ctx context.Context, filter interface{}, up
 
 func (mc *mongoCollection) InsertOne(ctx context.Context, document interface{}) (interface{}, error) {
 	id, err := mc.coll.InsertOne(ctx, document)
-	return id.InsertedID, err
+	if err != nil {
+		return nil, err
+	}
+	return id.InsertedID, nil
 }
 
 func (mc *mongoCollection) InsertMany(ctx context.Context, document []interface{}) ([]interface{}, error) {
 	res, err := mc.coll.InsertMany(ctx, document)
-	return res.InsertedIDs, err
+	if err != nil {
+		return nil, err
+	}
+
+	return res.InsertedIDs, nil
 }
 
 func (mc *mongoCollection) DeleteOne(ctx context.Context, filter interface{}) (int64, error) {
 	count, err := mc.coll.DeleteOne(ctx, filter)
-	return count.DeletedCount, err
+	if err != nil {
+		return 0, err
+	}
+	return count.DeletedCount, nil
 }
 
 func (mc *mongoCollection) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
 	findResult, err := mc.coll.Find(ctx, filter, opts...)
-	return &mongoCursor{mc: findResult}, err
+	if err != nil {
+		return nil, err
+	}
+	return &mongoCursor{mc: findResult}, nil
 }
 
 func (mc *mongoCollection) Aggregate(ctx context.Context, pipeline interface{}) (Cursor, error) {
 	aggregateResult, err := mc.coll.Aggregate(ctx, pipeline)
-	return &mongoCursor{mc: aggregateResult}, err
+	if err != nil {
+		return nil, err
+	}
+	return &mongoCursor{mc: aggregateResult}, nil
 }
 
 func (mc *mongoCollection) UpdateMany(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
