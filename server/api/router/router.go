@@ -25,8 +25,17 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gi
 	NewProfileRouter(env, timeout, db, protectedRouter)
 	NewSpotsRouter(env, timeout, db, protectedRouter)
 
+	// html
 	gin.StaticFile("/", "./webjs/index.html")
+
+	// js
+	gin.StaticFile("/app.js", "./webjs/app.js")
+	gin.StaticFile("/identity.js", "./webjs/identity.js")
+	gin.StaticFile("/map.js", "./webjs/map.js")
 	gin.StaticFile("/spots.js", "./webjs/spots.js")
+	gin.StaticFile("/ui.js", "./webjs/ui.js")
+
+	// css and images
 	gin.StaticFile("/spots.css", "./webjs/spots.css")
 	gin.StaticFile("/favicon.ico", "./webjs/favicon.ico")
 }

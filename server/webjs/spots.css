@@ -4,26 +4,41 @@ html, body {
     position: relative;
     margin: 0;
     font-family: arial;
-
 }
 
 body {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+}
+
+#content {
+    display: flex;
+    flex-direction: row;
     align-items: center;
+    flex-grow: 1;
+    align-items: stretch;
+}
+
+#sidebar {
+    width: 200px;
+    flex-grow: 1;
+    background-color: gray;
+}
+
+#map-content {
+    flex-grow: 9;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
 }
 
 h2 {
     font-size: 16pt;
 }
 
-#map {
-    width: 100%;
-    flex-grow: 2;
-    /*height: 100%;
-    max-width: 100%;
-    max-height: 100%;*/
-}
 #toolbar {
     height: 36px;
     display: flex;
@@ -97,3 +112,10 @@ h2 {
 .leaflet-container {
     cursor:crosshair;
 }
+
+.myDivIcon {
+    text-align: center;
+    /* Horizontally center the text (icon) */
+    line-height: 16px;
+    /* Vertically center the text (icon) */
+  }
