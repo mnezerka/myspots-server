@@ -5,27 +5,18 @@ function Toolbar(args) {
     this.identity = args.identity;
     this.onLogin = args.onLogin || empty_function;
     this.onLogout = args.onLogout || empty_function;
-    this.onLocalize = args.onLocalize || empty_function;
-    this.onCenter = args.onCenter || empty_function;
     this.onAdd = args.onAdd || empty_function;
-    this.onFit = args.onFit || empty_function;
 
     this.identity.registerObserver(this.update.bind(this)); 
 
     this.elBtnLogin = document.getElementById("button-login");
     this.elBtnLogout = document.getElementById("button-logout");
-    this.elBtnFit = document.getElementById("button-fit");
-    this.elBtnLocalize = document.getElementById("button-localize");
-    this.elBtnCenter = document.getElementById("button-center");
     this.elBtnAdd = document.getElementById("button-add");
     this.elUserInfo = document.getElementById("user-info");
 
     this.elBtnLogin.addEventListener("click", this.onLogin);
     this.elBtnLogout.addEventListener("click", this.onLogout);
-    this.elBtnLocalize.addEventListener("click", this.onLocalize);
-    this.elBtnCenter.addEventListener("click", this.onCenter);
     this.elBtnAdd.addEventListener("click", this.onAdd);
-    this.elBtnFit.addEventListener("click", this.onFit);
 }
 
 Toolbar.prototype.update = function(publisher) {
@@ -136,3 +127,24 @@ AddSpotModal.prototype.hide = function() {
     this.el.style.display = "none";
 }
 
+///////////////////////////////// Spot Info
+
+function SpotInfo(args) {
+    console.log("SpotInfo:constructor:enter")
+
+    this.el = document.getElementById("spot-info");
+    this.el.style.display = "none";
+
+    console.log("SpotInfo:constructor:leave")
+}
+
+SpotInfo.prototype.show = function(spot) {
+    this.el.innerHTML = `
+        <div>This is spot ${spot.name}</div>
+    `
+    this.el.style.display = "block";
+}
+
+SpotInfo.prototype.hide = function() {
+    this.el.style.display = "none";
+}

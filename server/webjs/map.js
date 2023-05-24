@@ -24,6 +24,77 @@ function Map(args) {
     }).addTo(this.map);
 
     this.map.on('click', this.onMapClick.bind(this));
+    
+    // custom control - localize
+    L.Control.Localize = L.Control.extend({
+        onAdd: function(map) {
+            let el = L.DomUtil.create('div');
+            el.className = "myspots-control";
+            el.innerHTML = '<i class="fa-regular fa-circle-dot"></i>';
+            
+            L.DomEvent.on(el, "click", function(ev) {
+                L.DomEvent.stopPropagation(ev);
+                this.localize();
+            }.bind(this))
+
+            this.elCtrlLocalize = el;
+            return this.elCtrlLocalize;
+        }.bind(this),
+    
+        onRemove: function(map) {
+            L.DomEvent.off(this.elCtrlLocalize);
+        }
+    });
+    
+    this.ctrlLocalize = new L.Control.Localize({position: 'topright'}).addTo(this.map); 
+
+    // custom control - fit all content
+
+    L.Control.Fit = L.Control.extend({
+        onAdd: function(map) {
+            let el = L.DomUtil.create('div');
+            el.className = "myspots-control";
+            el.innerHTML = '<i class="fa-solid fa-down-left-and-up-right-to-center"></i>';
+            
+            L.DomEvent.on(el, "click", function(ev) {
+                L.DomEvent.stopPropagation(ev);
+                this.fit();
+            }.bind(this))
+
+            this.elCtrlFit = el;
+            return this.elCtrlFit;
+        }.bind(this),
+    
+        onRemove: function(map) {
+            L.DomEvent.off(this.elCtrlFit);
+        }
+    });
+    
+    this.ctrlFit = new L.Control.Fit({position: 'topright'}).addTo(this.map); 
+    
+       // custom control - center
+
+    L.Control.Center = L.Control.extend({
+        onAdd: function(map) {
+            let el = L.DomUtil.create('div');
+            el.className = "myspots-control";
+            el.innerHTML = '<i class="fa-solid fa-arrows-to-dot"></i>';
+            
+            L.DomEvent.on(el, "click", function(ev) {
+                L.DomEvent.stopPropagation(ev);
+                this.center();
+            }.bind(this))
+
+            this.elCtrlCenter = el;
+            return this.elCtrlCenter;
+        }.bind(this),
+
+        onRemove: function(map) {
+            L.DomEvent.off(this.elCtrlCenter);
+        }
+    });
+    
+    this.ctrlCenter = new L.Control.Center({position: 'topright'}).addTo(this.map); 
 
     console.log("Map:constructor:leave")
 }

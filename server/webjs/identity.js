@@ -50,7 +50,11 @@ Identity.prototype.fetchProfile = async function() {
             this.isLogged = true;
             this.notifyAll();
         } else {
-            console.warn('Unexpected response code: ', response.status);
+            if (response.status == 401) {
+                this.logout();
+            } else {
+                console.warn('Unexpected response code: ', response.status);
+            }
         }
     } catch (err) {
         console.warn('Something went wrong.', err);

@@ -8,7 +8,7 @@ html, body {
 
 body {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
 }
 
@@ -24,6 +24,11 @@ body {
     width: 200px;
     flex-grow: 1;
     background-color: gray;
+}
+
+.sidebar-widget {
+    padding: 5px;
+    color: #eee;
 }
 
 #map-content {
@@ -46,12 +51,6 @@ h2 {
     width: 100%;
     background-color: #444;
     color: #eee;
-}
-
-#toolbar .title {
-    flex-grow: 1;
-    font-size: 16pt;
-    font-weight: bold;
 }
 
 #toolbar .button {
@@ -112,6 +111,26 @@ h2 {
 .leaflet-container {
     cursor:crosshair;
 }
+
+.myspots-control {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #fff;
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+}
+
+/****************************************** spot info */
+
+#spot-info {
+    display: none; /* Hidden by default */
+}
+
+/****************************************** map icons */
 
 .myDivIcon {
     text-align: center;

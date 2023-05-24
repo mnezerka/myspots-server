@@ -15,13 +15,12 @@ function App() {
     
     this.activeSpotId = null;
 
+    this.spotInfo = new SpotInfo();
+
     this.toolbar = new Toolbar({
         identity: this.identity,
         onLogin: this.onLogin.bind(this),
         onLogout: this.onLogout.bind(this),
-        onFit: this.onFit.bind(this),
-        onLocalize: this.onLocalize.bind(this),
-        onCenter: this.onCenter.bind(this),
         onAdd: this.onAdd.bind(this)
     });
     this.toolbar.update();
@@ -109,24 +108,6 @@ App.prototype.onLogout = function(e) {
     console.log("App:onLogout:leave");
 }
 
-App.prototype.onFit = function(e) {
-    console.log("App:onFit:enter");
-    this.map.fit();
-    console.log("App:onFit:leave");
-}
-
-App.prototype.onLocalize = function(e) {
-    console.log("App:onLocalize:enter", this);
-    this.map.localize();
-    console.log("App:onLocalize:leave");
-}
-
-App.prototype.onCenter = function(e) {
-    console.log("App:onCenter:enter");
-    this.map.center();
-    console.log("App:onCenter:leave");
-}
-
 App.prototype.onAdd = function(e) {
     console.log("App:onAdd:enter");
     //this.loginModal.show();
@@ -150,6 +131,8 @@ App.prototype.onSpotClick = function(spot) {
     console.log("App:onSpotClick:enter");
 
     this.setActiveSpot(spot);
+
+    this.spotInfo.show(spot);
 
     console.log("App:onSpotClick:leave");
 }
