@@ -58,6 +58,7 @@ Identity.prototype.fetchProfile = async function() {
         }
     } catch (err) {
         console.warn('Something went wrong.', err);
+        app.errors.push('API call failed');
     }
 }
 

@@ -14,6 +14,7 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 
     <link rel="stylesheet" href="spots.css"/>
+    <script src="store.js"></script>
     <script src="app.js"></script>
 	<script src="identity.js"></script>
 	<script src="map.js"></script>
@@ -45,11 +46,15 @@
 
     <div id="sidebar">
 
-        <div id="toolbar">
-            <span id="button-add" class="button">Add</span>
+        <div id="info">
             <span id="button-login" class="button">Login</span>
             <span id="button-logout" class="button">Logout</span>
             <span id="user-info"></span>
+        </div>
+
+
+        <div id="sport-toolbar">
+            <span id="button-add" class="button">Add</span>
         </div>
 
         <div id="spot-info" class="sidebar-widget">

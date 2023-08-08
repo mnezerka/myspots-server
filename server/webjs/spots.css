@@ -44,7 +44,7 @@ h2 {
     font-size: 16pt;
 }
 
-#toolbar {
+#info {
     height: 36px;
     display: flex;
     align-items: center;
@@ -53,7 +53,7 @@ h2 {
     color: #eee;
 }
 
-#toolbar .button {
+#info .button {
     height: 24px;
     line-height: 24px;
     padding-left: 5px;

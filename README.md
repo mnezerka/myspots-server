@@ -2,33 +2,6 @@
 
 Keep your favorite map spots in cloud application.
 
-## Usage 
-
-Install dependencies:
-```bash
-npm install
-```
-Start a development server:
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-
 ## Deployment
 
 Enter certbot container:
@@ -45,4 +18,25 @@ certbot certonly -d yonderland.org,myspots.yonderland.org
 Generate Diffie-Hellman group to be refered from nginx conf:
 ```bash
  openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+ ```
+ 
+ ## Development
+
+ ```bash
+ cd server
+ docker-compose up -d
+``` 
+
+ or on MacOS:
+
+ ```bash
+ cd server
+ lima nerctl compose up -d
+ ```
+ 
+ build and start server:
+ ```bash
+ cd server
+ export DB_HOST=localhost
+ go build -o server && ./server
  ```

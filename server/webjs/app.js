@@ -1,6 +1,11 @@
 var app;
 
-var host = ""
+var host = '';
+
+if (window.location.href.includes("file:///")) {
+    host = "http://localhost:8081"
+    console.log("Setting host to local mock server:", host)
+}
 
 let empty_function = function() {}
 
@@ -9,6 +14,12 @@ let empty_function = function() {}
 
 function App() {
     console.log("App:constructor:enter")
+
+    this.errors =  store({}, 'errors');
+
+    document.addEventListener('wizards', function (event) {
+        app.innerHTML = template(event.detail);
+    }); 
 
     this.identity = new Identity();
     this.identity.registerObserver(this.onUpdateIdentity.bind(this));
