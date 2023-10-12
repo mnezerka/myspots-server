@@ -18,7 +18,26 @@ let routes = {
         "name": "mn",
         "email": "michal.nezerka@gmail.com",
     },
-    "/spots": []
+    "/spots": [
+        {
+            "id": "646b5d2167e11af57a59ed41",
+            "name": "SAP",
+            "description": "This is SAP location in Brno",
+            "coordinates": [
+                49.18041,
+                16.605665
+            ]
+        },
+        {
+            "id": "746b5d2167e11af57a59ed41",
+            "name": "Hala Rondo",
+            "description": "A place where people play ice hockey",
+            "coordinates": [
+                49.1854922,
+                16.6020447
+            ]
+        }
+    ]
 }
 
 console.log("----- Routes -----");

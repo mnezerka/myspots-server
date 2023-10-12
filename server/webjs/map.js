@@ -1,14 +1,55 @@
 
+//////////////////////////////////////////////// MapContextMenu
+
+function MapContextMenu(args) {
+    console.log("MapContextMenu:constructor:enter")
+
+    this.el = document.getElementById("map-context-menu");
+    this.el.style.display = "none";
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        console.log("here");
+        if (event.target == this.el) {
+            this.hide();
+        }
+    }
+
+    console.log("MapContextMenu:constructor:leave")
+}
+
+MapContextMenu.prototype.show = function() {
+    this.el.style.display = "block";
+}
+
+MapContextMenu.prototype.hide = function() {
+    this.el.style.display = "none";
+}
+
+MapContextMenu.prototype.setPosFromEvent = function(e) {
+    console.log("MapContextMenu:setPosFromEvent", e)
+    this.el.style.left = e.originalEvent.pageX + "px";
+    this.el.style.top = e.originalEvent.pageY + "px";
+}
+//////////////////////////////////////////////// Map
+
 function Map(args) {
     console.log("Map:constructor:enter");
 
-    this.onSpotClick = args.onSpotClick || empty_function;
+    this.positionStore = args.positionStore || null;
+    this.positionStore.registerObserver(this.onUpdatePosition.bind(this));
+
+    this.spots = args.spots || null;
+    this.spots.registerObserver(this.onUpdateSpots.bind(this));
+
+    this.spotStore = args.spotStore || null;
 
     this.map = L.map('map').setView([51.505, -0.09], 13);
+
+    //this.contextMenu = new MapContextMenu()
     
     // active position on map
-    this.pos = null;
-    this.posMarker = null;
+    this.spotMarker = null;
 
     this.markers = {};
     
@@ -25,12 +66,15 @@ function Map(args) {
 
     this.map.on('click', this.onMapClick.bind(this));
     
+    // this.map.on('contextmenu', this.onMapContextMenu.bind(this));
+   
     // custom control - localize
     L.Control.Localize = L.Control.extend({
         onAdd: function(map) {
             let el = L.DomUtil.create('div');
             el.className = "myspots-control";
             el.innerHTML = '<i class="fa-regular fa-circle-dot"></i>';
+            el.setAttribute('title', 'Show my location');
             
             L.DomEvent.on(el, "click", function(ev) {
                 L.DomEvent.stopPropagation(ev);
@@ -55,6 +99,7 @@ function Map(args) {
             let el = L.DomUtil.create('div');
             el.className = "myspots-control";
             el.innerHTML = '<i class="fa-solid fa-down-left-and-up-right-to-center"></i>';
+            el.setAttribute('title', 'Fit all content');
             
             L.DomEvent.on(el, "click", function(ev) {
                 L.DomEvent.stopPropagation(ev);
@@ -79,6 +124,7 @@ function Map(args) {
             let el = L.DomUtil.create('div');
             el.className = "myspots-control";
             el.innerHTML = '<i class="fa-solid fa-arrows-to-dot"></i>';
+            el.setAttribute('title', 'Center');
             
             L.DomEvent.on(el, "click", function(ev) {
                 L.DomEvent.stopPropagation(ev);
@@ -100,12 +146,19 @@ function Map(args) {
 }
 
 Map.prototype.onMapClick = function(e) {
-    this.setPos(e.latlng);
+    console.log("click in map", e);
+    this.positionStore.setPos(e.latlng);
 }
 
+Map.prototype.onMapContextMenu = function(e) {
+    console.log("context menu", e)
+    //e.preventDefault()
+    this.contextMenu.setPosFromEvent(e);
+    this.contextMenu.show();
+}
+ 
 Map.prototype.onMarkerClick = function(e) {
-  //alert("hi. you clicked the marker at " + e.latlng);
-    this.onSpotClick(e.target.spot)
+    this.spotStore.setSpot(e.target.spot) 
 }  
 
 Map.prototype.localize = function() {
@@ -125,7 +178,7 @@ Map.prototype.onLocalized = function(position) {
 
     const p = new L.LatLng(position.coords.latitude, position.coords.longitude);
 
-    this.setPos(p);
+    this.positionStore.setPos(p);
     this.map.panTo(p);
 
     console.log("Map:onLocalized:leave")
@@ -134,8 +187,8 @@ Map.prototype.onLocalized = function(position) {
 Map.prototype.center = function() {
     console.log("Map:center:enter");
 
-    if (this.pos) {
-        this.map.panTo(this.pos);
+    if (this.positionStore.getPos()) {
+        this.map.panTo(this.positionStore.getPos());
     }
 
     console.log("Map:center:leave");
@@ -159,38 +212,54 @@ Map.prototype.fit = function() {
     console.log("Map:fit:leave");
 }
 
-Map.prototype.setPos = function(pos) {
-    this.pos = pos;
-    if (this.posMarker) {
-        this.posMarker.setLatLng(this.pos)
+// called when global actual position was changed
+Map.prototype.onUpdatePosition = function(store) {
+    console.log("Map:onUpdatePosition:enter", store.pos );
+    
+    // if we have position
+    if (store.pos) {
+        // if marker is already created => move it to new pos
+        if (this.posMarker) {
+            this.posMarker.setLatLng(store.pos)
+        } else {
+            this.posMarker = L.marker(store.pos).addTo(this.map) 
+        }
     } else {
-        this.posMarker = L.marker(this.pos).addTo(this.map) 
-    }
-}
-
-Map.prototype.getPos = function() {
-    return this.pos;
-}
-
-Map.prototype.updateSpots = function(spots) {
-
-    for (let i = 0; i < spots.spots.length; i++) {
-        const s = spots.spots[i];
-        if (s.id in this.markers) {
-            continue;
+        // remove marker from map if exists
+        if (this.posMarker) {
+            this.map.removeLayer(this.posMarker);
+            this.posMarker = null;
         }
+    }
+
+    console.log("Map:onUpdatePosition:leave");
+}
+
+Map.prototype.onUpdateSpots = function(spots) {
+    console.log("Map:onUpdateSlots:enter");
+    
+    if (spots.getSpots()) {
+        for (let i = 0; i < spots.getSpots().length; i++) {
+            const s = spots.getSpots()[i];
+            if (s.id in this.markers) {
+                continue;
+            }
         
-        const markerOptions = {
-            icon: this.icons.parking
+            const markerOptions = {
+                icon: this.icons.parking
+            }
+
+            const p = new L.LatLng(s.coordinates[0], s.coordinates[1]);
+            var m = L.marker(p, markerOptions)
+                .addTo(this.map)
+                .on('click', this.onMarkerClick.bind(this));
+
+            m.spot = s;
+            this.markers[s.id] = m;
         }
 
-        const p = new L.LatLng(s.coordinates[0], s.coordinates[1]);
-        var m = L.marker(p, markerOptions)
-            .addTo(this.map)
-            .on('click', this.onMarkerClick.bind(this));
-
-        m.spot = s;
-        this.markers[s.id] = m;
+        this.fit();
     }
-}
 
+    console.log("Map:onUpdateSlots:leave")
+}

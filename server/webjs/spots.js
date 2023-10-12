@@ -1,17 +1,27 @@
 
 function Spots(args) {
+    // call parent constructor
+    Store.call(this)
+
     this.identity = args.identity || null;
     this.spots = [];
-
-    this.observers = []; 
+    this.active = [];
 }
 
-Spots.prototype.registerObserver = function(observer) {
-    this.observers.push(observer);
+// Spots is child of Store
+Object.setPrototypeOf(Spots.prototype, Store.prototype);
+
+Spots.prototype.getSpots = function() {
+    return this.spots;
 }
 
-Spots.prototype.notifyAll = function() {
-    this.observers.forEach(function(observer) { observer(this)}.bind(this))
+Spots.prototype.getActive = function() {
+    return this.active;
+}
+
+Spots.prototype.setActive = function(spot) {
+    this.active = spot;
+    this.notifyAll()
 }
 
 Spots.prototype.fetch = async function() {
@@ -96,3 +106,4 @@ Spots.prototype.create = async function(spot) {
         console.warn('Something went wrong.', err);
     }
 }
+

@@ -9,13 +9,17 @@ if (window.location.href.includes("file:///")) {
 
 let empty_function = function() {}
 
+const APP_STATE_IDLE = 'idle';
+const APP_STATE_POSITION = 'position';
+const APP_STATE_SPOT_VIEW = 'spot-view';
 
 //////////////////////////////////////////////// Application
 
 function App() {
     console.log("App:constructor:enter")
 
-    this.errors =  store({}, 'errors');
+    // call parent constructor
+    Store.call(this)
 
     document.addEventListener('wizards', function (event) {
         app.innerHTML = template(event.detail);
@@ -24,68 +28,76 @@ function App() {
     this.identity = new Identity();
     this.identity.registerObserver(this.onUpdateIdentity.bind(this));
     
-    this.activeSpotId = null;
+    this.positionStore = new PositionStore();
+    this.positionStore.registerObserver(this.onUpdatePosition.bind(this));
 
-    this.spotInfo = new SpotInfo();
+    this.spotStore = new SpotStore();
+    this.spotStore.registerObserver(this.onSpotChange.bind(this));
+
+   
+    this.state = null;
 
     this.toolbar = new Toolbar({
+        app: this,
+        spotStore: this.spotStore,
         identity: this.identity,
         onLogin: this.onLogin.bind(this),
         onLogout: this.onLogout.bind(this),
-        onAdd: this.onAdd.bind(this)
+        onAdd: this.onAdd.bind(this),
+        onCancel: this.onCancel.bind(this)
     });
-    this.toolbar.update();
 
     this.loginModal = new LoginModal({
         onClose: this.onLoginModalClose.bind(this),
         onSubmit: this.onLoginModalSubmit.bind(this)
     });
  
+    /*
     this.addSpotModal = new AddSpotModal({
         onClose: this.onAddSpotModalClose.bind(this),
         onSubmit: this.onAddSpotModalSubmit.bind(this)
     });
+    */
 
     this.spots = new Spots({
         identity: this.identity
     });
-    this.spots.registerObserver(this.onUpdateSpots.bind(this));
 
     this.map = new Map({
-        onSpotClick: this.onSpotClick.bind(this)
+        spots: this.spots,
+        spotStore: this.spotStore,
+        positionStore: this.positionStore,
     });
+    
+    this.setState(APP_STATE_IDLE);
 
     this.identity.fetchProfile();
 
     console.log("App:constructor:leave")
 }
 
+// App is child of Store
+Object.setPrototypeOf(App.prototype, Store.prototype);
+
 App.prototype.onUpdateIdentity = function() {
     console.log("App:onUpdateIdentity:enter");
 
-    if (this.identity.isLogged && this.spots.spots.length == 0) {
+    if (this.identity.isLogged && this.spots.getSpots().length == 0) {
         this.spots.fetch();
     }
 
     console.log("App:onUpdateIdentity:leave")
 }
 
-App.prototype.onUpdateSpots = function() {
-    console.log("App:onUpdateSlots:enter");
-
-    this.map.updateSpots(this.spots);
+App.prototype.onSpotChange = function(spot) {
+    console.log("App:onSpotChange:enter");
     
-    this.map.fit();
+    if (spot.getSpot()) {
+        this.setState(APP_STATE_SPOT_VIEW);
+        this.positionStore.setPos(null);
+    }
 
-    console.log("App:onUpdateSlots:leave")
-}
-
-App.prototype.setActiveSpot = function(spot) {
-    console.log("App:setActiveSpot:enter", spot);
-
-    this.activeSpotId = spot.id;
-
-    console.log("App:setActiveSpot:leave");
+    console.log("App:onSpotChange:leave");
 }
 
 App.prototype.onLogin = function(e) {
@@ -132,20 +144,29 @@ App.prototype.onAdd = function(e) {
     console.log("App:onAdd:leave");
 }
 
+App.prototype.onCancel = function(e) {
+    console.log("App:onCancel:enter");
+    this.setState(APP_STATE_IDLE);
+    this.positionStore.setPos(null);
+    this.spotStore.setSpot(null);
+    console.log("App:onAdd:leave");
+}
+
 App.prototype.onAddSpotModalClose = function(e) {
     console.log("App:onAddSpotModalClose:enter");
     this.addSpotModal.hide();
     console.log("App:onAddSpotModalClose:leave");
 }
 
-App.prototype.onSpotClick = function(spot) {
-    console.log("App:onSpotClick:enter");
+App.prototype.onUpdatePosition = function(store) {
+    console.log("App:onUpdatePosition:enter", store.pos );
 
-    this.setActiveSpot(spot);
+    if (store.pos !== null) {
+        this.setState(APP_STATE_POSITION)
+        this.spotStore.setSpot(null);
+    }
 
-    this.spotInfo.show(spot);
-
-    console.log("App:onSpotClick:leave");
+    console.log("App:onUpdatePosition:leave");
 }
 
 App.prototype.onAddSpotModalSubmit = async function(name) {
@@ -170,6 +191,15 @@ App.prototype.onAddSpotModalSubmit = async function(name) {
     this.addSpotModal.hide();
 
     console.log("App:onAddSpotModalSubmit:leave");
+}
+
+App.prototype.setState = function (state) {
+    console.log(`App:setState: ${state}`);
+    if (this.state != state) {
+        console.log(`App state transition: ${this.state} -> ${state}`);
+        this.state = state;
+        this.notifyAll();
+    }
 }
 
 //////////////////////////////////////////////// main

@@ -15,11 +15,14 @@
 
     <link rel="stylesheet" href="spots.css"/>
     <script src="store.js"></script>
+    <script src="toolbar.js"></script>
     <script src="app.js"></script>
 	<script src="identity.js"></script>
 	<script src="map.js"></script>
 	<script src="ui.js"></script>
     <script src="spots.js"></script>
+    <script src="spotinfo.js"></script>
+    <script src="spotform.js"></script>
 </head>
 
 <body>
@@ -52,33 +55,37 @@
             <span id="user-info"></span>
         </div>
 
-
-        <div id="sport-toolbar">
+        <div id="spot-toolbar">
             <span id="button-add" class="button">Add</span>
+            <span id="button-cancel" class="button">Cancel</span>
         </div>
 
         <div id="spot-info" class="sidebar-widget">
         </div>
 
-        <div id="add-spot-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2 class="text-center">New Spot</h2>
-                <form>
-                    <div class="input-group">
-                        <label for="name" class="label">Name</label>
-                        <input type="text" id="name" class="input name" value="">
-                        <label for="description">Description</label>
-                        <textarea id="description"></textarea>
-                    </div>
-                    <button class="button submit" type="submit">Save</button>
-                </form>
-            </div>
+        <div id="spot-form" class="sidebar-widget">
+            <span class="close">&times;</span>
+            <form>
+                <div class="input-group">
+                    <label for="name" class="label">Name</label>
+                    <input type="text" id="name" class="input name" value="">
+                    <label for="description">Description</label>
+                    <textarea id="description"></textarea>
+                </div>
+                <button class="submit" type="submit">Save</button>
+            </form>
         </div>
+
     </div>
 
     <div id="map-content">
         <div id="map"></div>
+    </div>
+    
+    <div id = "map-context-menu" style = "display: none;">
+        <ul class = "menu-items">
+            <li class = "item"><a href = "#"> Menu Item-1 </a></li>
+        </ul>
     </div>
 
     <script>

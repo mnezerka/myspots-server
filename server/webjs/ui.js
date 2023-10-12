@@ -1,39 +1,3 @@
-//////////////////////////////////////////////// Toolbar
-
-function Toolbar(args) {
-
-    this.identity = args.identity;
-    this.onLogin = args.onLogin || empty_function;
-    this.onLogout = args.onLogout || empty_function;
-    this.onAdd = args.onAdd || empty_function;
-
-    this.identity.registerObserver(this.update.bind(this)); 
-
-    this.elBtnLogin = document.getElementById("button-login");
-    this.elBtnLogout = document.getElementById("button-logout");
-    this.elBtnAdd = document.getElementById("button-add");
-    this.elUserInfo = document.getElementById("user-info");
-
-    this.elBtnLogin.addEventListener("click", this.onLogin);
-    this.elBtnLogout.addEventListener("click", this.onLogout);
-    this.elBtnAdd.addEventListener("click", this.onAdd);
-}
-
-Toolbar.prototype.update = function(publisher) {
-    console.log("Toolbar:update:enter", publisher);
-
-    if (this.identity.isLogged) {
-        this.elUserInfo.textContent = `${this.identity.name} <${this.identity.email}>`;
-        this.elBtnLogin.style.display = "none"
-        this.elBtnLogout.style.display = "block"
-    } else {
-        this.elUserInfo.textContent =  'anonyous';
-        this.elBtnLogin.style.display = "block"
-        this.elBtnLogout.style.display = "none"
-    }
-    console.log("Toolbar:update:leave")
-}
-
 //////////////////////////////////////////////// LoginModal
 // https://www.w3schools.com/howto/howto_css_modals.asp 
 
@@ -124,27 +88,5 @@ AddSpotModal.prototype.show = function() {
 }
 
 AddSpotModal.prototype.hide = function() {
-    this.el.style.display = "none";
-}
-
-///////////////////////////////// Spot Info
-
-function SpotInfo(args) {
-    console.log("SpotInfo:constructor:enter")
-
-    this.el = document.getElementById("spot-info");
-    this.el.style.display = "none";
-
-    console.log("SpotInfo:constructor:leave")
-}
-
-SpotInfo.prototype.show = function(spot) {
-    this.el.innerHTML = `
-        <div>This is spot ${spot.name}</div>
-    `
-    this.el.style.display = "block";
-}
-
-SpotInfo.prototype.hide = function() {
     this.el.style.display = "none";
 }

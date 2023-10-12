@@ -1,20 +1,16 @@
 function Identity() {
 
+    // call parent constructor
+    Store.call(this)
+
     this.name = '';
     this.email = ''; 
     this.token = localStorage.getItem('token');
     this.isLogged = false;
-
-    this.observers = []; 
 }
 
-Identity.prototype.registerObserver = function(observer) {
-    this.observers.push(observer);
-}
-
-Identity.prototype.notifyAll = function() {
-    this.observers.forEach(function(observer) { observer(this)}.bind(this))
-}
+// Identity is child of Store
+Object.setPrototypeOf(Identity.prototype, Store.prototype);
 
 Identity.prototype.logout = function() {
     console.log("UserProfile:logout:enter");
@@ -26,9 +22,10 @@ Identity.prototype.logout = function() {
 
 Identity.prototype.fetchProfile = async function() {
 
-    console.log("UserProfile:fetchProfile:enter");
+    console.log("Identity:fetchProfile:enter");
 
     if (!this.token) {
+        this.notifyAll();
         return;
     }
 

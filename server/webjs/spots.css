@@ -12,6 +12,19 @@ body {
     align-items: stretch;
 }
 
+.button {
+    height: 24px;
+    line-height: 24px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    /*border: 1px solid #ccc;*/
+    /*background-color: #eee; */
+    cursor: pointer;
+    display: inline-block;
+}
+
 #content {
     display: flex;
     flex-direction: row;
@@ -23,12 +36,12 @@ body {
 #sidebar {
     width: 200px;
     flex-grow: 1;
-    background-color: gray;
+    background-color: #ffffff;
 }
 
 .sidebar-widget {
     padding: 5px;
-    color: #eee;
+/*    color: #eee; */
 }
 
 #map-content {
@@ -53,19 +66,17 @@ h2 {
     color: #eee;
 }
 
-#info .button {
-    height: 24px;
-    line-height: 24px;
-    padding-left: 5px;
-    padding-right: 5px;
-    /*border: 1px solid #ccc;*/
-    /*background-color: #eee; */
-    cursor: pointer;
-}
 
 #toolbar #user-info {
     padding-left: 5px;
     padding-right: 5px;
+}
+
+#sidebar form input,
+#sidebar form label,
+#sidebar form  textarea {
+    display: block;
+    margin-bottom: 5px;
 }
 
 /****************************************** modal window ********** */
@@ -130,6 +141,15 @@ h2 {
     display: none; /* Hidden by default */
 }
 
+#spot-info .title {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#spot-info .description {
+    margin-top: 10px;
+}
+
 /****************************************** map icons */
 
 .myDivIcon {
@@ -138,3 +158,24 @@ h2 {
     line-height: 16px;
     /* Vertically center the text (icon) */
   }
+
+/****************************************** map context menu */
+
+  #map-context-menu {
+    position: absolute;
+    z-index: 1000; /* Sit on top */
+    background-color: #84abb5;
+    height: 150px;
+    width: 100px;
+    text-align: center;
+ }
+
+ .menu-items {
+    list-style: none;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+ }
+ .menu-items .items { padding: 5px; border-bottom: 1px solid #e6d4b6;}
+ .menu-items .items:last-child { border: none;}
+ .menu-items .items a {text-decoration: none; color: white;}
