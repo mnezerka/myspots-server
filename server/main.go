@@ -1,29 +1,19 @@
 package main
 
-import (
-	"log"
-	"mnezerka/MySpots/server/api/router"
-	"mnezerka/MySpots/server/bootstrap"
-	"time"
+import "github.com/gin-gonic/gin"
 
-	"github.com/gin-gonic/gin"
-)
+func setupRouter() *gin.Engine {
+
+	r := gin.Default()
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
+
+	return r
+}
 
 func main() {
-	log.Print("Starting...")
-
-	app := bootstrap.App()
-
-	env := app.Env
-
-	db := app.Mongo.Database(env.DBName)
-	defer app.CloseDBConnection()
-
-	timeout := time.Duration(env.ContextTimeout) * time.Second
-
-	gin := gin.Default()
-
-	router.Setup(env, timeout, db, gin)
-
-	gin.Run(env.ServerAddress)
+	r := setupRouter()
+	r.Run() // listen and serve on 0.0.0.0:8080
 }
