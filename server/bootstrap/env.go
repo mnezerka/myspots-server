@@ -1,24 +1,22 @@
 package bootstrap
 
 import (
-	"log"
-
 	"github.com/spf13/viper"
+	"log"
+	"time"
 )
 
 type Env struct {
-	AppEnv                 string `mapstructure:"APP_ENV"`
-	ServerAddress          string `mapstructure:"SERVER_ADDRESS"`
-	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
-	DBHost                 string `mapstructure:"DB_HOST"`
-	DBPort                 string `mapstructure:"DB_PORT"`
-	DBUser                 string `mapstructure:"DB_USER"`
-	DBPass                 string `mapstructure:"DB_PASS"`
-	DBName                 string `mapstructure:"DB_NAME"`
-	AccessTokenExpiryHour  int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
-	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
-	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
-	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
+	AppEnv                string        `mapstructure:"APP_ENV"`
+	ServerAddress         string        `mapstructure:"SERVER_ADDRESS"`
+	ContextTimeout        int           `mapstructure:"CONTEXT_TIMEOUT"`
+	DBHost                string        `mapstructure:"DB_HOST"`
+	DBPort                string        `mapstructure:"DB_PORT"`
+	DBUser                string        `mapstructure:"DB_USER"`
+	DBPass                string        `mapstructure:"DB_PASS"`
+	DBName                string        `mapstructure:"DB_NAME"`
+	AccessTokenExpiryHour time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRATION"`
+	AccessTokenSecret     string        `mapstructure:"ACCESS_TOKEN_SECRET"`
 }
 
 func NewEnv() *Env {
@@ -28,11 +26,16 @@ func NewEnv() *Env {
 	log.Print("Reading configuration form environment")
 
 	env := Env{}
+
+	// default values
+	env.AccessTokenExpiryHour = 4 * time.Hour
+	env.AccessTokenSecret = "some-secret"
+
 	viper.SetConfigFile(".env")
 
 	// call viper.AutomaticEnv() to tell viper to automatically override values
 	// that it has read from config file with the values of the corresponding
-	//  environment variables if they exist.
+	// environment variables if they exist.
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()

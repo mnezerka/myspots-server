@@ -2,45 +2,44 @@ package repository
 
 import (
 	"context"
-	"mnezerka/MySpots/server/domain"
-	"mnezerka/MySpots/server/mongo"
+	"github.com/rs/zerolog/log"
+	"mnezerka/MySpots/server/entities"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const COLLECTION_SPOTS = "spots"
+
 type spotsRepository struct {
-	database   mongo.Database
-	collection string
+	db *mongo.Database
 }
 
-func NewSpotsRepository(db mongo.Database, collection string) domain.SpotsRepository {
+func NewSpotsRepository(db *mongo.Database) entities.SpotsRepository {
 	return &spotsRepository{
-		database:   db,
-		collection: collection,
+		db: db,
 	}
 }
 
-func (sr *spotsRepository) Create(c context.Context, spot *domain.Spot) error {
-	collection := sr.database.Collection(sr.collection)
+func (sr *spotsRepository) Create(c context.Context, spot *entities.Spot) error {
+	log.Info().Str("module", "SpotsRepository").Msgf("creating new spot %v", spot)
 
-	_, err := collection.InsertOne(c, spot)
-
+	_, err := sr.db.Collection(COLLECTION_SPOTS).InsertOne(c, spot)
 	return err
 }
 
-func (sr *spotsRepository) Fetch(c context.Context) ([]domain.Spot, error) {
-	collection := sr.database.Collection(sr.collection)
+func (sr *spotsRepository) Fetch(c context.Context) ([]entities.Spot, error) {
 
-	var spots []domain.Spot
+	var spots []entities.Spot
 
-	cursor, err := collection.Find(c, bson.M{})
+	cursor, err := sr.db.Collection(COLLECTION_SPOTS).Find(c, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 
 	err = cursor.All(c, &spots)
 	if spots == nil {
-		return []domain.Spot{}, err
+		return []entities.Spot{}, err
 	}
 
 	return spots, err

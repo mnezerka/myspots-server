@@ -1,3 +1,5 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
- curl -X POST -H 'content-type: application/json' --data '{"name": "mn", "email": "mn@example.com", "password": "mn"}' http://localhost:8080/signup
+: ${URL:?"Need to set URL non-empty"}
+
+curl -X POST -H 'content-type: application/json' --data '{"name": "mn", "email": "mn@example.com", "password": "mn"}' "${URL}signup"

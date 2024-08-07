@@ -2,14 +2,14 @@ package spatialutil
 
 import (
 	"fmt"
-	"mnezerka/MySpots/server/domain"
+	"mnezerka/MySpots/server/entities"
 )
 
 /*
 Valid longitude values are between -180 and 180, both inclusive.
 Valid latitude values are between -90 and 90, both inclusive.
 */
-func ValidateCoordinates(coords domain.Coordinates) error {
+func ValidateCoordinates(coords entities.Coordinates) error {
 
 	if len(coords) != 2 {
 		return fmt.Errorf("Invalid coordinates format (%v). It shall be an array of exactly two float numbers - [lng, lat]", coords)

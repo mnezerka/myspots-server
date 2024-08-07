@@ -1,4 +1,4 @@
-package domain
+package entities
 
 /*
 array of length 2, that contains:

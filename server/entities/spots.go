@@ -1,4 +1,4 @@
-package domain
+package entities
 
 import (
 	"context"
@@ -6,25 +6,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const (
-	CollectionSpots = "spots"
-)
-
 type Spot struct {
 	ID          primitive.ObjectID `bson:"_id" json:"id"`
 	Name        string             `bson:"name" form:"name" binding:"required" json:"name"`
-	Description string             `bson:"description" form:"description" binding:"required" json:"description"`
-	UserID      primitive.ObjectID `bson:"userID" json:"-"`
-	Type        string             `bson:"type" json:"-"`
+	Description string             `bson:"description" form:"description" json:"description"`
+	UserID      primitive.ObjectID `bson:"userID" binding:"required" json:"-"`
 	Coordinates Coordinates        `bson:"coordinates" form:"coordinates" binding:"required" json:"coordinates"`
 }
 
-type SpotsRepository interface {
-	Create(c context.Context, task *Spot) error
-	Fetch(c context.Context) ([]Spot, error)
+type SpotCreateRequest struct {
+	Name        string      `json:"name" binding:"required"`
+	Description string      `json:"description"`
+	Coordinates Coordinates `json:"coordinates" binding:"required"`
 }
 
-type SpotsUsecase interface {
+type SpotsRepository interface {
 	Create(c context.Context, task *Spot) error
 	Fetch(c context.Context) ([]Spot, error)
 }
