@@ -1,4 +1,4 @@
-package main
+package router_test
 
 import (
 	"net/http"
@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"mnezerka/myspots-server/router"
 )
 
 func TestPingRoute(t *testing.T) {
-	router := setupRouter()
+	router := router.SetupRouter(nil, nil, nil, nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)

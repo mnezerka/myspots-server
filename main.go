@@ -1,12 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"mnezerka/myspots-server/bootstrap"
 	"mnezerka/myspots-server/controllers"
-	"mnezerka/myspots-server/middleware"
 	"mnezerka/myspots-server/repository"
+	"mnezerka/myspots-server/router"
 )
 
 func main() {
@@ -24,24 +23,7 @@ func main() {
 
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 
-	// r := gin.Default()
-
-	//debugPrintWARNINGDefault()
-	r := gin.New()
-	r.Use(middleware.DefaultStructuredLogger()) // adds our structured logger
-	r.Use(gin.Recovery())                       // adds the default recovery middleware
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(200, "pong")
-	})
-
-	r.POST("/signup", signupController.Signup)
-	r.POST("/login", loginController.Login)
-
-	//r.GET("/spots", middleware.RequireAuth, spotsController.Fetch)
-	r.Use(middleware.Authenticate(env))
-	r.GET("/spots", spotsController.Fetch)
-	r.POST("/spots", spotsController.Create)
+	r := router.SetupRouter(loginController, signupController, spotsController, env)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
