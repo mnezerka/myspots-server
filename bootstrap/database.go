@@ -3,13 +3,14 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	//"go.mongodb.org/mongo-driver/mongo"
+	//"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"mnezerka/myspots-server/db"
 	"time"
 )
 
-func NewMongoDatabase(env *Env) *mongo.Database {
+func NewMongoDatabase(env *Env) db.Database {
 
 	log.Print("Opening and initializing mongo database")
 
@@ -31,7 +32,14 @@ func NewMongoDatabase(env *Env) *mongo.Database {
 
 	log.Printf("Connecting to mongodb: %s", mongodbUri)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongodbUri))
+	client, err := db.NewClient(mongodbUri)
+
+	//client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongodbUri))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +48,7 @@ func NewMongoDatabase(env *Env) *mongo.Database {
 
 	log.Printf("Trying to ping mongodb: %s", mongodbUri)
 
-	err = client.Ping(ctx, nil)
+	err = client.Ping(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

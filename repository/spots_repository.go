@@ -3,19 +3,19 @@ package repository
 import (
 	"context"
 	"github.com/rs/zerolog/log"
-	"mnezerka/MySpots/server/entities"
+	"mnezerka/myspots-server/db"
+	"mnezerka/myspots-server/entities"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const COLLECTION_SPOTS = "spots"
 
 type spotsRepository struct {
-	db *mongo.Database
+	db db.Database
 }
 
-func NewSpotsRepository(db *mongo.Database) entities.SpotsRepository {
+func NewSpotsRepository(db db.Database) entities.SpotsRepository {
 	return &spotsRepository{
 		db: db,
 	}

@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"mnezerka/MySpots/server/bootstrap"
-	"mnezerka/MySpots/server/entities"
-	"mnezerka/MySpots/server/repository"
+	"mnezerka/myspots-server/bootstrap"
+	"mnezerka/myspots-server/entities"
+	"mnezerka/myspots-server/repository"
 	"net/http"
 	"time"
 )

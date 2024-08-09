@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"mnezerka/MySpots/server/bootstrap"
-	"mnezerka/MySpots/server/controllers"
-	"mnezerka/MySpots/server/middleware"
-	"mnezerka/MySpots/server/repository"
+	"mnezerka/myspots-server/bootstrap"
+	"mnezerka/myspots-server/controllers"
+	"mnezerka/myspots-server/middleware"
+	"mnezerka/myspots-server/repository"
 )
 
 func main() {

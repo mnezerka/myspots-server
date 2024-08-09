@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"mnezerka/MySpots/server/entities"
-	"mnezerka/MySpots/server/internal/spatialutil"
+	"mnezerka/myspots-server/entities"
+	"mnezerka/myspots-server/internal/spatialutil"
 	"net/http"
 )
 

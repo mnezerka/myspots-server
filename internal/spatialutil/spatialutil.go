@@ -2,7 +2,7 @@ package spatialutil
 
 import (
 	"fmt"
-	"mnezerka/MySpots/server/entities"
+	"mnezerka/myspots-server/entities"
 )
 
 /*

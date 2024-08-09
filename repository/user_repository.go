@@ -2,21 +2,21 @@ package repository
 
 import (
 	"context"
-	"mnezerka/MySpots/server/entities"
+	"mnezerka/myspots-server/db"
+	"mnezerka/myspots-server/entities"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const COLLECTION_USERS = "users"
 
 type UserRepository struct {
-	db *mongo.Database
+	db db.Database
 }
 
-func NewUserRepository(db *mongo.Database) *UserRepository {
+func NewUserRepository(db db.Database) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}

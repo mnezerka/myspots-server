@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
-	"mnezerka/MySpots/server/bootstrap"
-	"mnezerka/MySpots/server/entities"
+	"mnezerka/myspots-server/bootstrap"
+	"mnezerka/myspots-server/entities"
 	"net/http"
 	"strings"
 )

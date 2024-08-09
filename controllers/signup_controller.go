@@ -3,9 +3,9 @@ package controllers
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v5"
-	"mnezerka/MySpots/server/bootstrap"
-	"mnezerka/MySpots/server/entities"
-	"mnezerka/MySpots/server/repository"
+	"mnezerka/myspots-server/bootstrap"
+	"mnezerka/myspots-server/entities"
+	"mnezerka/myspots-server/repository"
 	"net/http"
 	"os"
 	"time"

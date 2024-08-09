@@ -1,0 +1,11 @@
+with-expecter: True
+packages:
+    mnezerka/myspots-server/db:
+        config:
+            dir: "mocks/db"
+        interfaces:
+            Database:
+            Collection:
+            Client:
+            SingleResult:
+            Cursor:
