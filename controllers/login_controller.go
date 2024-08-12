@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"mnezerka/myspots-server/bootstrap"
 	"mnezerka/myspots-server/entities"
@@ -16,7 +17,7 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	AccessToken string `json:"accessToken"`
+	Token string `json:"token"`
 }
 
 type LoginController struct {
@@ -38,6 +39,8 @@ func (lc *LoginController) Login(c *gin.Context) {
 		return
 	}
 
+	log.Debug().Str("module", "LoginController").Msgf("new login request for user '%s'", request.Email)
+
 	// check if user exists
 	user, err := lc.userRepository.GetByEmail(c, request.Email)
 	if err != nil {
@@ -45,11 +48,15 @@ func (lc *LoginController) Login(c *gin.Context) {
 		return
 	}
 
+	log.Debug().Str("module", "LoginController").Msgf("user '%s' exists, validating password", request.Email)
+
 	// user exists, check if password matches
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
 		c.JSON(http.StatusUnauthorized, entities.ErrorResponse{Message: "Invalid credentials"})
 		return
 	}
+
+	log.Debug().Str("module", "LoginController").Msgf("password for user '%s' is valid, generating token", request.Email)
 
 	expirationTime := time.Now().Add(time.Hour * lc.env.AccessTokenExpiryHour)
 
@@ -73,7 +80,7 @@ func (lc *LoginController) Login(c *gin.Context) {
 	}
 
 	loginResponse := LoginResponse{
-		AccessToken: tokenString,
+		Token: tokenString,
 	}
 
 	c.JSON(http.StatusOK, loginResponse)

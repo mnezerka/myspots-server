@@ -19,7 +19,7 @@ import (
 	"mnezerka/myspots-server/router"
 )
 
-func TestSignup(t *testing.T) {
+func TestLogin(t *testing.T) {
 
 	var r *gin.Engine
 	var mockUserRepository *mockentities.MockUserRepository
@@ -32,9 +32,9 @@ func TestSignup(t *testing.T) {
 
 		env = &bootstrap.Env{}
 
-		signupController := controllers.NewSignupController(mockUserRepository, env)
+		loginController := controllers.NewLoginController(mockUserRepository, env)
 
-		r = router.SetupRouter(nil, signupController, nil, nil)
+		r = router.SetupRouter(loginController, nil, nil, nil)
 	}
 
 	t.Run("with empty body", func(t *testing.T) {
@@ -42,53 +42,16 @@ func TestSignup(t *testing.T) {
 		setup()
 
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/signup", nil)
+		req, _ := http.NewRequest("POST", "/login", nil)
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, 400, w.Code)
 		assert.Contains(t, w.Body.String(), "missing form body")
 	})
 
-	t.Run("valid request for existing user", func(t *testing.T) {
+	t.Run("login of unkown user", func(t *testing.T) {
 
 		setup()
-
-		mockUser := entities.User{
-			ID:       primitive.NewObjectID(),
-			Name:     "mn",
-			Email:    "mn@gmail.com",
-			Password: "mn",
-		}
-
-		mockUserRepository.On("GetByEmail", mock.AnythingOfType("*gin.Context"), "mn@example.com").Return(mockUser, nil).Once()
-
-		data := controllers.SignupRequest{
-			Name:     "mn",
-			Email:    "mn@example.com",
-			Password: "mn",
-		}
-
-		// marshall data to json (like json_encode)
-		marshalled, err := json.Marshal(data)
-		assert.Nil(t, err)
-
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/signup", bytes.NewReader(marshalled))
-		req.Header.Set("Content-type", "application/json")
-		r.ServeHTTP(w, req)
-
-		assert.Equal(t, 409, w.Code)
-		assert.Contains(t, w.Body.String(), "User already exists with the given email")
-	})
-
-	t.Run("valid request for new user", func(t *testing.T) {
-		setup()
-
-		data := controllers.SignupRequest{
-			Name:     "mn",
-			Email:    "mn@example.com",
-			Password: "mn",
-		}
 
 		// mock request if user exists -> return error which means user doesn't exist
 		mockUserRepository.On(
@@ -98,26 +61,65 @@ func TestSignup(t *testing.T) {
 			Return(emptyUser, errors.New("User not found")).
 			Once()
 
-		// mock request for creation of new user
-		mockUserRepository.On(
-			"Create",
-			mock.AnythingOfType("*gin.Context"),
-			mock.MatchedBy(func(u *entities.User) bool {
-				return u.Name == "mn" && u.Email == "mn@example.com"
-			})).
-			Return(nil).
-			Once()
+		data := controllers.LoginRequest{
+			Email:    "mn@example.com",
+			Password: "pwd",
+		}
 
 		// marshall data to json (like json_encode)
 		marshalled, err := json.Marshal(data)
 		assert.Nil(t, err)
 
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/signup", bytes.NewReader(marshalled))
+		req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalled))
+		req.Header.Set("Content-type", "application/json")
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, 404, w.Code)
+		assert.Contains(t, w.Body.String(), "User not found with the given email")
+	})
+
+	t.Run("valid login", func(t *testing.T) {
+
+		setup()
+
+		mockUser := entities.User{
+			ID:       primitive.NewObjectID(),
+			Name:     "mn",
+			Email:    "mn@gmail.com",
+			Password: "$2a$10$EqrtZNw/zjy/j2ZqI8Ne.u3rS3jgL/ufY3iCq0hLYcm/tIzWvTGqu",
+		}
+
+		// mock request if user exists -> return error which means user doesn't exist
+		mockUserRepository.On(
+			"GetByEmail",
+			mock.AnythingOfType("*gin.Context"),
+			"mn@example.com").
+			Return(mockUser, nil).
+			Once()
+
+		data := controllers.LoginRequest{
+			Email:    "mn@example.com",
+			Password: "pwd",
+		}
+
+		// marshall data to json (like json_encode)
+		marshalled, err := json.Marshal(data)
+		assert.Nil(t, err)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalled))
 		req.Header.Set("Content-type", "application/json")
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, 200, w.Code)
+
+		// check body
+		var body map[string]interface{}
+		assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &body))
+		val, ok := body["token"]
+		assert.True(t, ok)
+		assert.NotEmpty(t, val)
 	})
 
 }
