@@ -24,6 +24,7 @@ func (sc *SpotsController) Create(c *gin.Context) {
 
 	err := c.ShouldBind(&spotRequest)
 	if err != nil {
+		log.Warn().Str("module", "SpotsController").Msg("failed to parse request body")
 		c.JSON(http.StatusBadRequest, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
@@ -32,6 +33,7 @@ func (sc *SpotsController) Create(c *gin.Context) {
 
 	err = spatialutil.ValidateCoordinates(spotRequest.Coordinates)
 	if err != nil {
+		log.Warn().Str("module", "SpotsController").Msg("failed to validate coordinates")
 		c.JSON(http.StatusBadRequest, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
@@ -47,6 +49,7 @@ func (sc *SpotsController) Create(c *gin.Context) {
 	spot.ID = primitive.NewObjectID()
 	spot.UserID, err = primitive.ObjectIDFromHex(userId)
 	if err != nil {
+		log.Warn().Str("module", "SpotsController").Msg("failed to convert user id to hex")
 		c.JSON(http.StatusBadRequest, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
@@ -58,9 +61,12 @@ func (sc *SpotsController) Create(c *gin.Context) {
 
 	err = sc.spotsRepository.Create(c, &spot)
 	if err != nil {
+		log.Warn().Str("module", "SpotsController").Msgf("failed to create spot: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	log.Debug().Msg("spot created successfully")
 
 	c.JSON(http.StatusOK, entities.SuccessResponse{
 		Message: "Spot created successfully",

@@ -58,7 +58,7 @@ func (lc *LoginController) Login(c *gin.Context) {
 
 	log.Debug().Str("module", "LoginController").Msgf("password for user '%s' is valid, generating token", request.Email)
 
-	expirationTime := time.Now().Add(time.Hour * lc.env.AccessTokenExpiryHour)
+	expirationTime := time.Now().Add(time.Hour * lc.env.TokenExpiryHour)
 
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &entities.JwtCustomClaims{
@@ -72,7 +72,7 @@ func (lc *LoginController) Login(c *gin.Context) {
 	// generate new jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(lc.env.AccessTokenSecret))
+	tokenString, err := token.SignedString([]byte(lc.env.TokenSecret))
 	if err != nil {
 		//log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, entities.ErrorResponse{Message: "error while encrypting token, try again"})

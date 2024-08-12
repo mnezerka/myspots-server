@@ -7,16 +7,16 @@ import (
 )
 
 type Env struct {
-	AppEnv                string        `mapstructure:"APP_ENV"`
-	ServerAddress         string        `mapstructure:"SERVER_ADDRESS"`
-	ContextTimeout        int           `mapstructure:"CONTEXT_TIMEOUT"`
-	DBHost                string        `mapstructure:"DB_HOST"`
-	DBPort                string        `mapstructure:"DB_PORT"`
-	DBUser                string        `mapstructure:"DB_USER"`
-	DBPass                string        `mapstructure:"DB_PASS"`
-	DBName                string        `mapstructure:"DB_NAME"`
-	AccessTokenExpiryHour time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRATION"`
-	AccessTokenSecret     string        `mapstructure:"ACCESS_TOKEN_SECRET"`
+	AppEnv          string        `mapstructure:"APP_ENV"`
+	ServerAddress   string        `mapstructure:"SERVER_ADDRESS"`
+	ContextTimeout  int           `mapstructure:"CONTEXT_TIMEOUT"`
+	DBHost          string        `mapstructure:"DB_HOST"`
+	DBPort          string        `mapstructure:"DB_PORT"`
+	DBUser          string        `mapstructure:"DB_USER"`
+	DBPass          string        `mapstructure:"DB_PASS"`
+	DBName          string        `mapstructure:"DB_NAME"`
+	TokenExpiryHour time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRATION"`
+	TokenSecret     string        `mapstructure:"ACCESS_TOKEN_SECRET"`
 }
 
 func NewEnv() *Env {
@@ -28,8 +28,8 @@ func NewEnv() *Env {
 	env := Env{}
 
 	// default values
-	env.AccessTokenExpiryHour = 4 * time.Hour
-	env.AccessTokenSecret = "some-secret"
+	env.TokenExpiryHour = 4 * time.Hour
+	env.TokenSecret = "some-secret"
 
 	viper.SetConfigFile(".env")
 

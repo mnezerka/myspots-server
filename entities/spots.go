@@ -21,6 +21,6 @@ type SpotCreateRequest struct {
 }
 
 type SpotsRepository interface {
-	Create(c context.Context, task *Spot) error
+	Create(c context.Context, spot *Spot) error
 	Fetch(c context.Context) ([]Spot, error)
 }

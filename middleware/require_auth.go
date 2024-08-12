@@ -46,7 +46,7 @@ func Authenticate(env *bootstrap.Env) gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return []byte(env.AccessTokenSecret), nil
+			return []byte(env.TokenSecret), nil
 		})
 
 		if err != nil {
