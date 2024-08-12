@@ -6,7 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"mnezerka/myspots-server/bootstrap"
 	"mnezerka/myspots-server/entities"
-	"mnezerka/myspots-server/repository"
 	"net/http"
 	"time"
 )
@@ -21,11 +20,11 @@ type LoginResponse struct {
 }
 
 type LoginController struct {
-	userRepository *repository.UserRepository
+	userRepository entities.UserRepository
 	env            *bootstrap.Env
 }
 
-func NewLoginController(userRepository *repository.UserRepository, env *bootstrap.Env) *LoginController {
+func NewLoginController(userRepository entities.UserRepository, env *bootstrap.Env) *LoginController {
 	return &LoginController{userRepository: userRepository, env: env}
 }
 

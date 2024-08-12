@@ -1,50 +1,39 @@
 package controllers
 
 import (
-	"context"
-	"github.com/golang-jwt/jwt/v5"
 	"mnezerka/myspots-server/bootstrap"
 	"mnezerka/myspots-server/entities"
-	"mnezerka/myspots-server/repository"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type SignupRequest struct {
-	Name     string `form:"name" binding:"required"`
-	Email    string `form:"email" binding:"required,email"`
-	Password string `form:"password" binding:"required"`
-}
-
-type SignupResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-}
-
-type SignupUsecase interface {
-	Create(c context.Context, user *entities.User) error
-	GetUserByEmail(c context.Context, email string) (entities.User, error)
-	CreateAccessToken(user *entities.User, secret string, expiry int) (accessToken string, err error)
-	CreateRefreshToken(user *entities.User, secret string, expiry int) (refreshToken string, err error)
+	Name     string `form:"name" json:"name" binding:"required"`
+	Email    string `form:"email" json:"email" binding:"required,email"`
+	Password string `form:"password" json:"password" binding:"required"`
 }
 
 type SignupController struct {
-	userRepository *repository.UserRepository
+	userRepository entities.UserRepository
 	env            *bootstrap.Env
 }
 
-func NewSignupController(userRepository *repository.UserRepository, env *bootstrap.Env) *SignupController {
+func NewSignupController(userRepository entities.UserRepository, env *bootstrap.Env) *SignupController {
 	return &SignupController{userRepository: userRepository, env: env}
 }
 
 func (sc *SignupController) Signup(c *gin.Context) {
 
 	var request SignupRequest
+
+	//body, _ := io.ReadAll(c.Request.Body)
+	//log.Debug().Str("module", "SignupController").Msgf("Incoming http request: %s", body)
+
+	log.Debug().Str("module", "SignupController").Msg("Incoming http request")
 
 	err := c.ShouldBind(&request)
 	if err != nil {
@@ -58,6 +47,8 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		return
 	}
 
+	log.Debug().Str("module", "SignupController").Msgf("user with email %s does not exist -> could be created", request.Email)
+
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(request.Password),
 		bcrypt.DefaultCost,
@@ -66,6 +57,8 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	log.Debug().Str("module", "SignupController").Msgf("user password successfully encrypted")
 
 	request.Password = string(encryptedPassword)
 
@@ -76,29 +69,13 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		Password: request.Password,
 	}
 
+	log.Debug().Str("module", "SignupController").Msgf("creating new user instance")
+
 	err = sc.userRepository.Create(c, &user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, entities.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	// Generate a JWT token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	accessToken, err := token.SignedString([]byte(os.Getenv("SECRET")))
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, entities.ErrorResponse{Message: "Failed to create token"})
-		return
-	}
-
-	signupResponse := SignupResponse{
-		AccessToken: accessToken,
-	}
-
-	c.JSON(http.StatusOK, signupResponse)
+	c.JSON(http.StatusOK, nil)
 }

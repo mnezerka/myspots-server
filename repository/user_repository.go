@@ -12,17 +12,17 @@ import (
 
 const COLLECTION_USERS = "users"
 
-type UserRepository struct {
+type userRepository struct {
 	db db.Database
 }
 
-func NewUserRepository(db db.Database) *UserRepository {
-	return &UserRepository{
+func NewUserRepository(db db.Database) entities.UserRepository {
+	return &userRepository{
 		db: db,
 	}
 }
 
-func (ur *UserRepository) Create(c context.Context, user *entities.User) error {
+func (ur *userRepository) Create(c context.Context, user *entities.User) error {
 	collection := ur.db.Collection(COLLECTION_USERS)
 
 	_, err := collection.InsertOne(c, user)
@@ -30,7 +30,7 @@ func (ur *UserRepository) Create(c context.Context, user *entities.User) error {
 	return err
 }
 
-func (ur *UserRepository) Fetch(c context.Context) ([]entities.User, error) {
+func (ur *userRepository) Fetch(c context.Context) ([]entities.User, error) {
 
 	opts := options.Find().SetProjection(bson.D{{Key: "password", Value: 0}})
 	cursor, err := ur.db.Collection(COLLECTION_USERS).Find(c, bson.D{}, opts)
@@ -49,13 +49,13 @@ func (ur *UserRepository) Fetch(c context.Context) ([]entities.User, error) {
 	return users, err
 }
 
-func (ur *UserRepository) GetByEmail(c context.Context, email string) (entities.User, error) {
+func (ur *userRepository) GetByEmail(c context.Context, email string) (entities.User, error) {
 	var user entities.User
 	err := ur.db.Collection(COLLECTION_USERS).FindOne(c, bson.M{"email": email}).Decode(&user)
 	return user, err
 }
 
-func (ur *UserRepository) GetByID(c context.Context, id string) (entities.User, error) {
+func (ur *userRepository) GetByID(c context.Context, id string) (entities.User, error) {
 
 	var user entities.User
 

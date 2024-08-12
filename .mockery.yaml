@@ -9,3 +9,9 @@ packages:
             Client:
             SingleResult:
             Cursor:
+    mnezerka/myspots-server/entities:
+        config:
+            dir: "mocks/entities"
+        interfaces:
+            UserRepository:
+
