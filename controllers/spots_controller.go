@@ -75,6 +75,8 @@ func (sc *SpotsController) Create(c *gin.Context) {
 
 func (u *SpotsController) Fetch(c *gin.Context) {
 
+	log.Debug().Str("module", "SpotsController").Msg("get spots")
+
 	spots, err := u.spotsRepository.Fetch(c)
 
 	if err != nil {
